@@ -5,7 +5,7 @@ Bot also running at https://twitter.com/gambinabot on my Raspberry Pi
 
 # Features
   - Gets Gambina amount from a random store
-  - When getting the song, checks whether it has been used in last 48 hours (maintained by a pickle file)
+  - When getting the store, checks whether it has been used in last 48 hours (maintained by a pickle file)
   - Forms a tweet with the amount of Gambina and the name of store
   - Posting every hour, this also can be modified
   
