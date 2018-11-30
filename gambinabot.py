@@ -58,9 +58,13 @@ try:
 
 		amountOfGambinaInSelectedStore = amountOfGambinas[randomAlko]
 		storeString = u'myymälässä '
-		tweet = "Gambinaa on saatavilla " + amountOfGambinaInSelectedStore + " pulloa " + storeString + stores[randomAlko]
+		if amountOfGambinaInSelectedStore == "1":
+			tweet = "Gambinaa on saatavilla " + amountOfGambinaInSelectedStore + " pullo " + storeString + stores[randomAlko]
+		else:
+			tweet = "Gambinaa on saatavilla " + amountOfGambinaInSelectedStore + " pulloa " + storeString + stores[randomAlko]
 
 		api.update_status(tweet)
+		print(tweet)
 
 	if __name__ == "__main__":
 		main()
