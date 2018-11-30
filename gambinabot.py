@@ -64,7 +64,6 @@ try:
 			tweet = "Gambinaa on saatavilla " + amountOfGambinaInSelectedStore + " pulloa " + storeString + stores[randomAlko]
 
 		api.update_status(tweet)
-		print(tweet)
 
 	if __name__ == "__main__":
 		main()
