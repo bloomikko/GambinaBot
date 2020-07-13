@@ -40,8 +40,9 @@ try:
 			last48Stores = []
 
 		randomAlko = (random.randint(1, len(stores)-1))
-		while randomAlko in last48Stores:
-			randomAlko = (random.randint(1, len(stores)-1))
+		if len(stores) >= 48:
+			while randomAlko in last48Stores:
+				randomAlko = (random.randint(1, len(stores)-1))
 
 		if len(last48Stores) < 48:
 			last48Stores.append(randomAlko)
@@ -53,7 +54,7 @@ try:
 			with open ('gambinafile.pickle', 'wb') as pickle_file:
 				pickle.dump(last48Stores, pickle_file)
 
-		for selectedStoreGambinaAmount in gambinaSoup.find_all('span',  {"class": "right tiny-2 number-in-stock padding-h-0 taste-color "}):
+		for selectedStoreGambinaAmount in gambinaSoup.find_all('span',  {"class": "right tiny-2 number-in-stock padding-h-0 taste-color"}):
 			amountOfGambinas.append(selectedStoreGambinaAmount.getText())
 
 		amountOfGambinaInSelectedStore = amountOfGambinas[randomAlko]
