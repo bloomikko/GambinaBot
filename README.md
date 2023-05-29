@@ -1,7 +1,7 @@
 # GambinaBot
 Twitter bot for getting amount of available Gambina in random Alko (the liquor distributor in Finland). For the love of "rubiininpunainen suudelma", Gambina, the famous drink. Many people have quite experiences with it. I used to be an active Twitter user and there are a lot of interesting bots, and this is my third bot as there is no love for Gambina, yet. Now there is!
 
-Bot also running at https://twitter.com/gambinabot on my Raspberry Pi.
+Bot was running at https://twitter.com/gambinabot on my Raspberry Pi, but unfortunately Alko's website started blocking web crawlers.
 
 # Features
   - Gets Gambina amount from a random store
