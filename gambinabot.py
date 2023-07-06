@@ -96,7 +96,7 @@ try:
                     number_of_gambinas_in_store = number_dict[key]
 
             if number_of_gambinas_in_store == "yksi":
-                (
+                tweet: str = (
                     "Gambinaa on saatavilla "
                     + number_of_gambinas_in_store
                     + " pullo "
@@ -104,7 +104,7 @@ try:
                     + stores_with_gambina[selected_store]
                 )
             else:
-                (
+                tweet: str = (
                     "Gambinaa on saatavilla "
                     + number_of_gambinas_in_store
                     + " pulloa "
@@ -112,9 +112,11 @@ try:
                     + stores_with_gambina[selected_store]
                 )
         else:
-            ("Gambina on loppu " + store_string + stores[random_alko] + "!!! :(")
+            tweet: str = (
+                "Gambina on loppu " + store_string + stores[random_alko] + "!!! :("
+            )
 
-        # api.update_status(tweet)
+        api.update_status(tweet)
 
     if __name__ == "__main__":
         main()
