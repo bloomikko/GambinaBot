@@ -1,94 +1,110 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import tweepy, requests, random, pickle, json
+import tweepy
+import requests
+import random
+import pickle
+import json
 from bs4 import BeautifulSoup
 
 try:
-    #Twitter credentials, you can get these from https://apps.twitter.com for your account
-    CONSUMER_KEY = 'YOUR_CONSUMER_KEY'
-    CONSUMER_SECRET = 'YOUR_CONSUMER_SECRET'
-    ACCESS_KEY = 'YOUR_ACCESS_KEY'
-    ACCESS_SECRET = 'YOUR_ACCESS_SECRET'
+    # Twitter credentials
+    # You can get these from https://apps.twitter.com for your account
+    CONSUMER_KEY = "YOUR_CONSUMER_KEY"
+    CONSUMER_SECRET = "YOUR_CONSUMER_SECRET"
+    ACCESS_KEY = "YOUR_ACCESS_KEY"
+    ACCESS_SECRET = "YOUR_ACCESS_SECRET"
 
-    #Setting up the authentication and API for Twitter
+    # Setting up the authentication and API for Twitter
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
     api = tweepy.API(auth)
 
-    #Opening the Gambina page with stores and availabilities
-    gambinaPage = "https://www.alko.fi/INTERSHOP/web/WFS/Alko-OnlineShop-Site/fi_FI/-/EUR/ViewProduct-Include?SKU=319027&AppendStoreList=true&AjaxRequestMarker=true"
-    page = requests.get(gambinaPage).text
-    soupOfGambinaStores = BeautifulSoup(page, "html.parser")
-    last48Stores = []
-    storesWithGambina = []
+    # Opening the Gambina page with stores and availabilities
+    gambina_url = "https://www.alko.fi/INTERSHOP/web/WFS/Alko-OnlineShop-Site/fi_FI/-/EUR/ViewProduct-Include?SKU=319027&AppendStoreList=true&AjaxRequestMarker=true"
+    page = requests.get(gambina_url).text
+    gambina_soup = BeautifulSoup(page, "html.parser")
+    last_48_stores = []
+    stores_with_gambina = []
     stores = []
-    numberDict = {
-        "1": "yksi",
-        "2": "kaksi",
-        "3": "kolme",
-        "4": "neljä",
-        "5": "viisi"
-	}
+    number_dict = {"1": "yksi", "2": "kaksi", "3": "kolme", "4": "neljä", "5": "viisi"}
 
-    for selectedStore in soupOfGambinaStores.find_all("span",  {"class": "store-in-stock tiny-10 option-text"}):
-        storesWithGambina.append(selectedStore.getText())
-    storesWithGambina = list(map(lambda s: s.strip(), storesWithGambina))
+    for store in gambina_soup.find_all(
+        "span", {"class": "store-in-stock tiny-10 option-text"}
+    ):
+        stores_with_gambina.append(store.getText())
+    stores_with_gambina = list(map(lambda s: s.strip(), stores_with_gambina))
 
-    storesPage = "https://www.alko.fi/INTERSHOP/web/WFS/Alko-OnlineShop-Site/fi_FI/-/EUR/ALKO_ViewStoreLocator-StoresJSON"
-    page = requests.get(storesPage).text
-    soupOfStores = BeautifulSoup(page, "html.parser")
-    site_json = json.loads(soupOfStores.text)
+    store_page = "https://www.alko.fi/INTERSHOP/web/WFS/Alko-OnlineShop-Site/fi_FI/-/EUR/ALKO_ViewStoreLocator-StoresJSON"
+    page = requests.get(store_page).text
+    stores_soup = BeautifulSoup(page, "html.parser")
+    site_json = json.loads(stores_soup.text)
 
     for store in site_json["stores"]:
         if store["outletTypeId"] == "outletType_myymalat":
             stores.append(store["name"])
 
-    #Main function for handling the stores, amount of Gambina and forming the tweet
+    # Main function for handling the stores, amount of Gambina and forming the tweet
     def main():
         pickle_file = open("gambinafile.pickle", "ab")
-        amountOfGambinas = []
+        number_of_gambinas = []
 
         try:
-            last48Stores = pickle.load(open("gambinafile.pickle", "rb"))
+            last_48_stores = pickle.load(open("gambinafile.pickle", "rb"))
         except EOFError:
-            last48Stores = []
+            last_48_stores = []
 
-        randomAlko = (random.randint(1, len(stores)-1))
-        while stores[randomAlko] in last48Stores:
-            randomAlko = (random.randint(1, len(stores)-1))
+        random_alko = random.randint(1, len(stores) - 1)
+        while stores[random_alko] in last_48_stores:
+            random_alko = random.randint(1, len(stores) - 1)
 
-        if len(last48Stores) < 48:
-            last48Stores.append(stores[randomAlko])
-            with open ("gambinafile.pickle", "wb") as pickle_file:
-                pickle.dump(last48Stores, pickle_file)
+        if len(last_48_stores) < 48:
+            last_48_stores.append(stores[random_alko])
+            with open("gambinafile.pickle", "wb") as pickle_file:
+                pickle.dump(last_48_stores, pickle_file)
         else:
-            last48Stores.remove(last48Stores[0])
-            last48Stores.append(stores[randomAlko])
-            with open ("gambinafile.pickle", "wb") as pickle_file:
-                pickle.dump(last48Stores, pickle_file)
+            last_48_stores.remove(last_48_stores[0])
+            last_48_stores.append(stores[random_alko])
+            with open("gambinafile.pickle", "wb") as pickle_file:
+                pickle.dump(last_48_stores, pickle_file)
 
-        storeString = u'myymälässä '
-        selectedGambinaStore = 0
-        if stores[randomAlko] in storesWithGambina:
-            for gambinaNumber in soupOfGambinaStores.find_all("span", {"class": "right tiny-2 number-in-stock padding-h-0 taste-color"}):
-                amountOfGambinas.append(gambinaNumber.getText())
+        store_string = "myymälässä "
+        selected_store = 0
+        if stores[random_alko] in stores_with_gambina:
+            for gambina_number in gambina_soup.find_all(
+                "span",
+                {"class": "right tiny-2 number-in-stock padding-h-0 taste-color"},
+            ):
+                number_of_gambinas.append(gambina_number.getText())
 
-            while stores[randomAlko] != storesWithGambina[selectedGambinaStore]:
-                selectedGambinaStore += 1
+            while stores[random_alko] != stores_with_gambina[selected_store]:
+                selected_store += 1
 
-            storesWithGambina[selectedGambinaStore] = stores[randomAlko]
-            amountOfGambinaInSelectedStore = amountOfGambinas[selectedGambinaStore].strip()
+            stores_with_gambina[selected_store] = stores[random_alko]
+            number_of_gambinas_in_store = number_of_gambinas[selected_store].strip()
 
-            for key in numberDict:
-            	if key == amountOfGambinaInSelectedStore:
-            		amountOfGambinaInSelectedStore = numberDict[key]
+            for key in number_dict:
+                if key == number_of_gambinas_in_store:
+                    number_of_gambinas_in_store = number_dict[key]
 
-            if amountOfGambinaInSelectedStore == "yksi":
-                tweet = "Gambinaa on saatavilla " + amountOfGambinaInSelectedStore + " pullo " + storeString + storesWithGambina[selectedGambinaStore]
+            if number_of_gambinas_in_store == "yksi":
+                tweet = (
+                    "Gambinaa on saatavilla "
+                    + number_of_gambinas_in_store
+                    + " pullo "
+                    + store_string
+                    + stores_with_gambina[selected_store]
+                )
             else:
-                tweet = "Gambinaa on saatavilla " + amountOfGambinaInSelectedStore + " pulloa " + storeString + storesWithGambina[selectedGambinaStore]
+                tweet = (
+                    "Gambinaa on saatavilla "
+                    + number_of_gambinas_in_store
+                    + " pulloa "
+                    + store_string
+                    + stores_with_gambina[selected_store]
+                )
         else:
-            tweet = "Gambina on loppu " + storeString + stores[randomAlko] + "!!! :("
+            tweet = "Gambina on loppu " + store_string + stores[random_alko] + "!!! :("
 
         api.update_status(tweet)
 
